@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ML Interface</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <h1>ML Application</h1>
+  <div id="upload-section">
+    <h2>Upload Data</h2>
+    <input type="file" id="file-upload" multiple>
+    <button onclick="uploadData()">Upload</button>
+  </div>
+
+  <div id="prediction-section">
+    <h2>Make a Prediction</h2>
+    <input type="file" id="prediction-upload">
+    <button onclick="makePrediction()">Predict</button>
+    <div id="prediction-result"></div>
+  </div>
+
+  <div id="visualization-section">
+    <h2>Visualizations</h2>
+    <canvas id="visualization-chart"></canvas>
+  </div>
+
+  <div id="retrain-section">
+    <h2>Retrain Model</h2>
+    <button onclick="retrainModel()">Retrain</button>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
