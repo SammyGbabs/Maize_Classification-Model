@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Visualize - MaizeGuard</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/navigation.css">
+    <link rel="stylesheet" href="css/visualize.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="index.html" class="nav-logo">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="leaf-icon">
+                    <path d="M11 20A7 7 0 0 1 4 13c0-7 9-11 9-11s9 4 9 11a7 7 0 0 1-7 7h-4z"/>
+                </svg>
+                <span>MaizeGuard</span>
+            </a>
+            <div class="nav-links">
+                <a href="index.html">Home</a>
+                <a href="predict.html">Detect</a>
+                <a href="retrain.html">Retrain</a>
+                <a href="visualize.html" class="active">Visualize</a>
+            </div>
+        </div>
+    </nav>
+
+    <main class="visualize-container">
+        <div class="back-link">
+            <a href="index.html">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="19" y1="12" x2="5" y2="12"></line>
+                    <polyline points="12 19 5 12 12 5"></polyline>
+                </svg>
+                Back to Home
+            </a>
+        </div>
+
+        <div class="metrics-grid">
+            <div class="metric-card">
+                <h3 class="metric-title">Detection Accuracy</h3>
+                <div class="metric-value"><span id="accuracy">0</span>%</div>
+                <p class="metric-description">Average accuracy across all maize diseases</p>
+            </div>
+            <div class="metric-card">
+                <h3 class="metric-title">Disease Types</h3>
+                <div class="metric-value"><span id="diseases">4</span></div>
+                <p class="metric-description">Number of maize diseases in our database</p>
+            </div>
+            <div class="metric-card">
+                <h3 class="metric-title">Total Scans</h3>
+                <div class="metric-value"><span id="scans">25</span></div>
+                <p class="metric-description">Number of leaf scans processed</p>
+            </div>
+        </div>
+
+        <div class="visualization-grid">
+            <div class="visualization-card">
+                <img src="https://images.unsplash.com/photo-1601329279349-1e2781c8b2a3?auto=format&fit=crop&w=800&h=600" alt="Disease Detection Accuracy" class="visualization-image" />
+                <div class="visualization-content">
+                    <h3 class="visualization-title">Disease Detection Accuracy</h3>
+                    <p class="visualization-description">Analysis of model accuracy for different maize diseases over time.</p>
+                    <ul class="key-points">
+                        <li>Northern Leaf Blight: 95% accuracy</li>
+                        <li>Common Rust: 93% accuracy</li>
+                        <li>Gray Leaf Spot: 91% accuracy</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="visualization-card">
+                <img src="https://images.unsplash.com/photo-1574323347407-f5e1ad6d020b?auto=format&fit=crop&w=800&h=600" alt="Disease Distribution" class="visualization-image" />
+                <div class="visualization-content">
+                    <h3 class="visualization-title">Disease Distribution</h3>
+                    <p class="visualization-description">Geographic distribution of detected maize diseases.</p>
+                    <ul class="key-points">
+                        <li>Common Rust prevalent in humid regions</li>
+                        <li>Gray Leaf Spot common in temperate zones</li>
+                        <li>Seasonal patterns in disease occurrence</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="visualization-card">
+                <img src="https://images.unsplash.com/photo-1530836369250-ef72a3f5cda8?auto=format&fit=crop&w=800&h=600" alt="Early Detection Impact" class="visualization-image" />
+                <div class="visualization-content">
+                    <h3 class="visualization-title">Early Detection Impact</h3>
+                    <p class="visualization-description">Benefits of early disease detection on crop yield.</p>
+                    <ul class="key-points">
+                        <li>30% yield improvement with early detection</li>
+                        <li>Reduced pesticide usage</li>
+                        <li>Better crop management decisions</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="visualization-card">
+                <img src="https://images.unsplash.com/photo-1584820927498-cfe5211fd8bf?auto=format&fit=crop&w=800&h=600" alt="Treatment Effectiveness" class="visualization-image" />
+                <div class="visualization-content">
+                    <h3 class="visualization-title">Treatment Effectiveness</h3>
+                    <p class="visualization-description">Success rates of different treatment methods by disease type.</p>
+                    <ul class="key-points">
+                        <li>Targeted treatment recommendations</li>
+                        <li>Cost-effectiveness analysis</li>
+                        <li>Environmental impact assessment</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script src="js/navigation.js"></script>
+    <script src="js/visualize.js"></script>
+</body>
+</html>

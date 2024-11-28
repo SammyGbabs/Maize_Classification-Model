@@ -1,36 +1,143 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>ML Interface</title>
-  <link rel="stylesheet" href="styles.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MaizeGuard - Maize Leaf Disease Detection</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/navigation.css">
 </head>
 <body>
-  <h1>ML Application</h1>
-  <div id="upload-section">
-    <h2>Upload Data</h2>
-    <input type="file" id="file-upload" multiple>
-    <button onclick="uploadData()">Upload</button>
-  </div>
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="index.html" class="nav-logo">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="leaf-icon">
+                    <path d="M11 20A7 7 0 0 1 4 13c0-7 9-11 9-11s9 4 9 11a7 7 0 0 1-7 7h-4z"/>
+                </svg>
+                <span>MaizeGuard</span>
+            </a>
+            <div class="nav-links">
+                <a href="index.html" class="active">Home</a>
+                <a href="predict.html">Detect</a>
+                <a href="retrain.html">Retrain</a>
+                <a href="visualize.html">Visualize</a>
+            </div>
+        </div>
+    </nav>
 
-  <div id="prediction-section">
-    <h2>Make a Prediction</h2>
-    <input type="file" id="prediction-upload">
-    <button onclick="makePrediction()">Predict</button>
-    <div id="prediction-result"></div>
-  </div>
+    <main class="container">
+        <div class="hero">
+            <div class="hero-content">
+                <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="hero-icon">
+                    <path d="M11 20A7 7 0 0 1 4 13c0-7 9-11 9-11s9 4 9 11a7 7 0 0 1-7 7h-4z"/>
+                </svg>
+                <h1>Protect Your Maize Crop</h1>
+                <p>Advanced AI-powered detection system for early identification and analysis of maize leaf diseases</p>
+            </div>
+        </div>
 
-  <div id="visualization-section">
-    <h2>Visualizations</h2>
-    <canvas id="visualization-chart"></canvas>
-  </div>
+        <div class="stats">
+            <div class="stat-item">
+                <div class="stat-value" id="accuracy">0%</div>
+                <div class="stat-label">Detection Accuracy</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value" id="diseases">0</div>
+                <div class="stat-label">Disease Types</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value" id="scans">0</div>
+                <div class="stat-label">Leaves Scanned</div>
+            </div>
+        </div>
 
-  <div id="retrain-section">
-    <h2>Retrain Model</h2>
-    <button onclick="retrainModel()">Retrain</button>
-  </div>
+        <div class="feature-cards">
+            <a href="predict.html" class="feature-card">
+                <div class="card-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                        <polyline points="17 8 12 3 7 8"/>
+                        <line x1="12" y1="3" x2="12" y2="15"/>
+                    </svg>
+                </div>
+                <h3>Instant Disease Detection</h3>
+                <p>Upload a photo of maize leaves and get immediate disease identification with detailed analysis</p>
+            </a>
 
-  <script src="script.js"></script>
+            <a href="retrain.html" class="feature-card">
+                <div class="card-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.3"/>
+                    </svg>
+                </div>
+                <h3>Model Improvement</h3>
+                <p>Help enhance our disease detection model by contributing to our maize leaf disease database</p>
+            </a>
+
+            <a href="visualize.html" class="feature-card">
+                <div class="card-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="12" y1="20" x2="12" y2="10"/>
+                        <line x1="18" y1="20" x2="18" y2="4"/>
+                        <line x1="6" y1="20" x2="6" y2="16"/>
+                    </svg>
+                </div>
+                <h3>Disease Analytics</h3>
+                <p>Explore detailed insights and performance metrics of our disease detection model</p>
+            </a>
+        </div>
+    </main>
+
+    <script src="js/navigation.js"></script>
+    <script>
+        // Animate stats
+        const stats = [
+            { id: 'accuracy', value: 96, suffix: '%' },
+            { id: 'diseases', value: 3, suffix: '+' },
+            { id: 'scans', value: 25, suffix: '+' }
+        ];
+
+        stats.forEach(stat => {
+            const element = document.getElementById(stat.id);
+            if (!element) return;
+
+            let current = 0;
+            const target = stat.value;
+            const duration = 2000;
+            const steps = 60;
+            const increment = target / steps;
+
+            const timer = setInterval(() => {
+                current += increment;
+                if (current >= target) {
+                    current = target;
+                    clearInterval(timer);
+                }
+                
+                element.textContent = Math.round(current) + stat.suffix;
+            }, duration / steps);
+        });
+
+        // Intersection Observer for feature cards animation
+        const cards = document.querySelectorAll('.feature-card');
+        const observer = new IntersectionObserver(
+            (entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.style.opacity = '1';
+                        entry.target.style.transform = 'translateY(0)';
+                    }
+                });
+            },
+            { threshold: 0.1 }
+        );
+
+        cards.forEach(card => {
+            card.style.opacity = '0';
+            card.style.transform = 'translateY(20px)';
+            card.style.transition = 'all 0.6s ease-out';
+            observer.observe(card);
+        });
+    </script>
 </body>
 </html>
