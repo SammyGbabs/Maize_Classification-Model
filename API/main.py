@@ -15,3 +15,6 @@ app.include_router(retrain_router, prefix="/retrain", tags=["Retraining"])
 @app.get("/")
 def read_root():
     return {"message": "Welcome to the Maize Leaf Disease Detection API"}
+
+if __name__ == "__main__":
+    uvicorn.run(app, host="0.0.0.0", port=8000)
