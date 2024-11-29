@@ -25,11 +25,11 @@ def make_prediction(image):
     return {"class": predicted_class, "confidence": float(confidence)}
 
 @router.post("/")
-async def predict(file: UploadFile = File(...)):
+async def predict(image: UploadFile = File(...)):
     try:
-        file_content = await file.read()
-        image = Image.open(BytesIO(file_content)).convert("RGB")
-        result = make_prediction(image)
+        file_content = await image.read()
+        img = Image.open(BytesIO(file_content)).convert("RGB")
+        result = make_prediction(img)
         return {"prediction": result}
     except Exception as e:
         print(f"Error during prediction: {e}")

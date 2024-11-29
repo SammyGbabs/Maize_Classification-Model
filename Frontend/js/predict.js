@@ -49,31 +49,43 @@ document.addEventListener('DOMContentLoaded', () => {
     // Handle predict button click
     predictButton.addEventListener('click', async () => {
         const formData = new FormData();
-        formData.append('image', imageUpload.files[0]);
+    
+        const file = imageUpload.files[0];
+        if (!file) {
+            predictionResult.textContent = 'Please upload an image before predicting.';
+            return;
+        }
+    
+        formData.append('image', file);
     
         try {
-            const response = await fetch('http://127.0.0.1:8000/', {  // Update with your deployed endpoint
+            console.log("Sending image for prediction...");
+            const response = await fetch('https://cors-anywhere.herokuapp.com/https://maize-classification-model.onrender.com/predict/', {
                 method: 'POST',
-                body: formData
+                body: formData,
             });
     
-            if (!response.ok) {
-                throw new Error('Prediction request failed');
-            }
-    
             const result = await response.json();
-            if (result.class) {
-                predictionResult.textContent = `Prediction: ${result.class}`;
-                confidenceScore.textContent = `Confidence: ${result.confidence}%`;
+            console.log("Response Data:", result);
+    
+            // Show results in the result display section
+            const resultDisplay = document.getElementById('resultDisplay');
+            const predictionResult = document.getElementById('predictionResult');
+            const confidenceScore = document.getElementById('confidenceScore');
+    
+            if (result.prediction) {
+                resultDisplay.classList.remove('hidden');
+                predictionResult.textContent = `Prediction: ${result.prediction.class}`;
+                confidenceScore.textContent = `Confidence: ${(result.prediction.confidence * 100).toFixed(2)}%`;
             } else {
                 predictionResult.textContent = 'No prediction received';
                 confidenceScore.textContent = '';
             }
         } catch (error) {
-            console.error('Error:', error);
+            console.error('Error making prediction:', error);
             predictionResult.textContent = 'Error making prediction';
             confidenceScore.textContent = '';
         }
-    });
+    });    
 });
     

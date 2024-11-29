@@ -67,3 +67,14 @@
     background-color: var(--text-light);
     cursor: not-allowed;
 }
+
+.result-display {
+    margin-top: 20px;
+    text-align: center;
+    font-size: 18px;
+    color: #333;
+}
+
+.result-display.hidden {
+    display: none;
+}
