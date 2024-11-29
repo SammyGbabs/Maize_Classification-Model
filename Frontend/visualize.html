@@ -57,53 +57,58 @@
 
         <div class="visualization-grid">
             <div class="visualization-card">
-                <img src="https://images.unsplash.com/photo-1601329279349-1e2781c8b2a3?auto=format&fit=crop&w=800&h=600" alt="Disease Detection Accuracy" class="visualization-image" />
+                <img src="./images/class distribution of dataset.png" alt="Class Distribution" class="visualization-image" />
                 <div class="visualization-content">
-                    <h3 class="visualization-title">Disease Detection Accuracy</h3>
-                    <p class="visualization-description">Analysis of model accuracy for different maize diseases over time.</p>
+                    <h3 class="visualization-title"><strong>Class Distribution</strong></h3>
+                    <p class="visualization-description">The bar chart shows the number of images across four classes: Gray Leaf Spot, 
+                        Blight, Healthy, and Common Rust, highlighting a significant class imbalance, particularly the dominance of the "Healthy" class.</p>
                     <ul class="key-points">
-                        <li>Northern Leaf Blight: 95% accuracy</li>
-                        <li>Common Rust: 93% accuracy</li>
-                        <li>Gray Leaf Spot: 91% accuracy</li>
+                        <li><strong>Healthy Class Dominates:</strong> The "Healthy" class has the most images (over 1000), creating a significant class imbalance that may lead to bias in predictions.</li>
+                        <li><strong>Underrepresented Classes:</strong> "Gray Leaf Spot" and "Common Rust" have the fewest images (each under 250), which may result in poor generalization and high misclassification rates for these classes.</li>
+                        <li><strong>Moderate Representation for Blight:</strong> The "Blight" class has a moderate number of images, making it less affected by imbalance compared to the other minority classes.</li>
                     </ul>
                 </div>
             </div>
 
             <div class="visualization-card">
-                <img src="https://images.unsplash.com/photo-1574323347407-f5e1ad6d020b?auto=format&fit=crop&w=800&h=600" alt="Disease Distribution" class="visualization-image" />
+                <img src="./images/Image dimension Distribution.png" alt="Image Dimension Distribution" class="visualization-image" />
                 <div class="visualization-content">
-                    <h3 class="visualization-title">Disease Distribution</h3>
-                    <p class="visualization-description">Geographic distribution of detected maize diseases.</p>
+                    <h3 class="visualization-title"><strong>Image Dimension Distribution</strong></h3>
+                    <p class="visualization-description">The scatter plot shows the relationship between the width and height of images in the dataset. 
+                        The points are concentrated at smaller dimensions, with a gradual spread towards larger dimensions, indicating a range of image sizes.</p>
                     <ul class="key-points">
-                        <li>Common Rust prevalent in humid regions</li>
-                        <li>Gray Leaf Spot common in temperate zones</li>
-                        <li>Seasonal patterns in disease occurrence</li>
+                        <li><strong>Concentration in Small Dimensions:</strong> Most images have dimensions below 1000x1000, suggesting the dataset predominantly contains smaller-sized images.</li>
+                        <li><strong>Proportional Scaling:</strong> The linear trend indicates that width and height are generally proportional, maintaining consistent aspect ratios.</li>
+                        <li><strong>Few Large Images:</strong> A small number of images have significantly larger dimensions, which might require resizing for consistency in preprocessing.</li>
                     </ul>
                 </div>
             </div>
 
             <div class="visualization-card">
-                <img src="https://images.unsplash.com/photo-1530836369250-ef72a3f5cda8?auto=format&fit=crop&w=800&h=600" alt="Early Detection Impact" class="visualization-image" />
+                <img src="./images/Aspect ratio distribution.png" alt="Aspect Ratio Distribution" class="visualization-image" />
                 <div class="visualization-content">
-                    <h3 class="visualization-title">Early Detection Impact</h3>
-                    <p class="visualization-description">Benefits of early disease detection on crop yield.</p>
+                    <h3 class="visualization-title"><strong>Aspect Ratio Distribution</strong></h3>
+                    <p class="visualization-description">The aspect ratio distribution shows that most images in the dataset are square (aspect ratio 1.0), 
+                        with fewer images having wider or taller formats. This indicates a lack of diversity in image shapes, which could influence model 
+                        performance if not addressed through preprocessing or augmentation.</p>
                     <ul class="key-points">
-                        <li>30% yield improvement with early detection</li>
-                        <li>Reduced pesticide usage</li>
-                        <li>Better crop management decisions</li>
+                        <li><strong>Most Images are Square:</strong> The majority of images have an aspect ratio of 1.0, indicating a dominant presence of square-shaped images in the dataset.</li>
+                        <li><strong>Low Diversity in Aspect Ratios:</strong> A few images deviate from the square format, but non-square aspect ratios (e.g., 1.5, 2.0) are underrepresented.</li>
+                        <li><strong>Imbalance May Impact Model:</strong> The heavy skew towards square images could lead to bias in model training unless preprocessing or augmentation is applied.</li>
                     </ul>
                 </div>
             </div>
 
             <div class="visualization-card">
-                <img src="https://images.unsplash.com/photo-1584820927498-cfe5211fd8bf?auto=format&fit=crop&w=800&h=600" alt="Treatment Effectiveness" class="visualization-image" />
+                <img src="./images/Brightness distribution.png" alt="Brightness Distribution" class="visualization-image" />
                 <div class="visualization-content">
-                    <h3 class="visualization-title">Treatment Effectiveness</h3>
-                    <p class="visualization-description">Success rates of different treatment methods by disease type.</p>
+                    <h3 class="visualization-title"><strong>Brightness Distribution</strong></h3>
+                    <p class="visualization-description">The brightness distribution illustrates the pixel intensity levels across all images, ranging from 40 to 200. 
+                        The data appears to follow a roughly normal distribution, with a peak near 120, indicating that most images have mid-range brightness levels.</p>
                     <ul class="key-points">
-                        <li>Targeted treatment recommendations</li>
-                        <li>Cost-effectiveness analysis</li>
-                        <li>Environmental impact assessment</li>
+                        <li><strong>Balanced Brightness:</strong>The majority of images have brightness values concentrated around 120, suggesting a balanced exposure for most of the dataset.</li>
+                        <li><strong>Limited Extremes</strong>Few images have very low (dark) or very high (bright) brightness, indicating minimal presence of overexposed or underexposed images.</li>
+                        <li><strong>Uniformity Opportunity:</strong>The overall distribution suggests consistent lighting across the dataset, which can reduce the need for aggressive brightness normalization during preprocessing.</li>
                     </ul>
                 </div>
             </div>

@@ -8,7 +8,7 @@ from tensorflow.keras.models import load_model
 router = APIRouter()
 
 # Load the model
-MODEL = load_model("models/model_densenet.h5")
+MODEL = load_model("../models/model_densenet.h5")
 CLASS_NAMES = ["Blight", "Common_Rust", "Gray_Leaf_Spot", "Healthy"]
 
 def make_prediction(image):

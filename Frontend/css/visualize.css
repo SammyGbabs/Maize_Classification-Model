@@ -34,7 +34,7 @@
 .visualization-image {
     width: 100%;
     height: 300px;
-    object-fit: cover;
+    object-fit: contain;
     border-bottom: 1px solid var(--border-color);
 }
 

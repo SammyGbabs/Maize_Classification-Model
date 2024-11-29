@@ -122,7 +122,7 @@ async def upload_and_retrain(file: UploadFile = File(...)):
     organize_dataset(unzipped_dir, PREPROCESSED_DIR)
 
     # Step 5: Retrain the model
-    model_path = "models/model_densenet.h5"  # Path to the existing model
+    model_path = "../models/model_densenet.h5"  # Path to the existing model
     try:
         retrained_model_path, evaluation_metrics = retrain_model(model_path, PREPROCESSED_DIR)
         return {

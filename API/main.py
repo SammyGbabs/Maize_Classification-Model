@@ -1,6 +1,6 @@
 from fastapi import FastAPI
-from API.routes.prediction import router as prediction_router
-from API.routes.retrain import router as retrain_router
+from routes.prediction import router as prediction_router
+from routes.retrain import router as retrain_router
 
 app = FastAPI(
     title="Maize Leaf Disease Detection API",
