@@ -98,6 +98,10 @@ def retrain_model(model_path: str, dataset_dir: str):
     # Return evaluation metrics along with the model path
     return retrained_model_path, evaluation
 
+# In routes/retrain.py
+@router.get("")
+async def test_retrain_endpoint():
+    return {"message": "Retrain endpoint is working"}
 
 @router.post("/upload")
 async def upload_and_retrain(file: UploadFile = File(...)):

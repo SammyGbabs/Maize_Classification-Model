@@ -15,8 +15,8 @@ app = FastAPI(
 # Add CORS middleware with local frontend URL
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://127.0.0.1:5500"],  # Add your local frontend URL
-    allow_credentials=True,
+    allow_origins=["*"],  # Add your local frontend URL
+    allow_credentials=False,
     allow_methods=["*"],
     allow_headers=["*"],
 )
@@ -29,6 +29,11 @@ app.include_router(retrain_router, prefix="/retrain", tags=["Retraining"])
 @app.get("/")
 def read_root():
     return {"message": "Welcome to the Maize Leaf Disease Detection API"}
+
+# In your main.py, add a test endpoint
+@app.get("/test-cors")
+async def test_cors():
+    return {"message": "CORS test successful"}
 
 # Run the app
 if __name__ == "__main__":
