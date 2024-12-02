@@ -15,15 +15,15 @@ app = FastAPI(
 # Add CORS middleware with local frontend URL
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Add your local frontend URL
-    allow_credentials=False,
-    allow_methods=["*"],
+    allow_origins=["http://127.0.0.1:5500"],  # Add your local frontend URL
+    allow_credentials=True,
+    allow_methods=["GET", "POST"],
     allow_headers=["*"],
 )
 
 # Register routes
 app.include_router(prediction_router, prefix="/predict", tags=["Prediction"])
-app.include_router(retrain_router, prefix="/retrain", tags=["Retraining"])
+app.include_router(retrain_router, prefix="", tags=["Retraining"])
 
 # Root endpoint
 @app.get("/")

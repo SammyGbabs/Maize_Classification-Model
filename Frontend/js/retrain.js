@@ -5,9 +5,17 @@ document.addEventListener('DOMContentLoaded', () => {
     const fileName = document.getElementById('fileName');
     const removeFile = document.getElementById('removeFile');
     const retrainButton = document.getElementById('retrainButton');
-    const progressContainer = document.getElementById('progressContainer');
-    const progressBar = document.getElementById('progressBar');
-    const progressStatus = document.getElementById('progressStatus');
+    const metricsContainer = document.getElementById('metricsContainer');
+    const lossElement = document.getElementById('loss');
+    const accuracyElement = document.getElementById('accuracy');
+    const modelPathElement = document.getElementById('modelPath');
+    const loader = document.getElementById('loader');
+
+    // Check if required DOM elements are present
+    if (!retrainButton || !metricsContainer || !loader || !uploadArea || !datasetUpload || !uploadStatus || !fileName || !removeFile) {
+        console.error('Required DOM elements are missing');
+        return;
+    }
 
     // Handle drag and drop
     uploadArea.addEventListener('dragover', (e) => {
@@ -22,14 +30,15 @@ document.addEventListener('DOMContentLoaded', () => {
     uploadArea.addEventListener('drop', (e) => {
         e.preventDefault();
         uploadArea.classList.remove('drag-over');
-        
+
         const file = e.dataTransfer.files[0];
         if (file && file.name.endsWith('.zip')) {
             handleFile(file);
+        } else {
+            alert("Please upload a valid ZIP file.");
         }
     });
 
-    // Handle file input change
     datasetUpload.addEventListener('change', (e) => {
         const file = e.target.files[0];
         if (file) {
@@ -37,51 +46,77 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // Handle file selection
     function handleFile(file) {
         fileName.textContent = file.name;
         uploadStatus.classList.remove('hidden');
         retrainButton.disabled = false;
-        progressContainer.classList.add('hidden');
-        progressBar.style.width = '0%';
-        progressStatus.textContent = '0%';
     }
 
-    // Handle file removal
     removeFile.addEventListener('click', () => {
         datasetUpload.value = '';
         uploadStatus.classList.add('hidden');
         retrainButton.disabled = true;
-        progressContainer.classList.add('hidden');
+        metricsContainer.classList.add('hidden');
+        loader.classList.add('hidden');
     });
 
-    // Handle retrain button click
     retrainButton.addEventListener('click', async () => {
-        // Show progress UI
-        progressContainer.classList.remove('hidden');
         retrainButton.disabled = true;
-
-        // Simulate progress (replace with actual API call)
-        let progress = 0;
-        const interval = setInterval(() => {
-            progress += 1;
-            progressBar.style.width = `${progress}%`;
-            progressStatus.textContent = `${progress}%`;
-
-            if (progress >= 100) {
-                clearInterval(interval);
-                // Handle completion
+        loader.classList.remove('hidden');
+        metricsContainer.classList.add('hidden');
+    
+        try {
+            const file = datasetUpload.files[0];
+            
+            if (!file) {
+                throw new Error('No file selected');
             }
-        }, 100);
-
-        // API integration will go here
-        // const formData = new FormData();
-        // formData.append('dataset', datasetUpload.files[0]);
-        // const response = await fetch('API_ENDPOINT', {
-        //     method: 'POST',
-        //     body: formData
-        // });
-        // const result = await response.json();
-        // Handle the retraining result
+            
+            console.log('File details:', {
+                name: file.name,
+                size: file.size,
+                type: file.type
+            });
+    
+            const formData = new FormData();
+            formData.append('file', file);
+    
+            console.log('Starting upload and retraining...');
+            
+            const response = await fetch('http://127.0.0.1:8000/retrain/upload', {
+                method: 'POST',
+                body: formData
+            });
+    
+            if (!response.ok) {
+                let errorMessage = 'Upload failed';
+                try {
+                    const errorData = await response.json();
+                    errorMessage = errorData.detail || errorMessage;
+                } catch (err) {
+                    console.error('Error parsing response JSON:', err);
+                }
+                throw new Error(errorMessage);
+            }
+    
+            const result = await response.json();
+            console.log('Retraining successful:', result);
+    
+            // Update UI with results from the new API structure
+            const metrics = result.results.metrics;
+            lossElement.textContent = metrics.final_loss.toFixed(4);
+            accuracyElement.textContent = `${(metrics.final_accuracy * 100).toFixed(2)}%`;
+            modelPathElement.textContent = result.results.model_path;
+    
+            metricsContainer.classList.remove('hidden');
+            alert('Model retraining completed successfully!');
+    
+        } catch (error) {
+            console.error('Error during uploaded or retraining:', error);
+            alert(`Error: ${error.message}`);
+        } finally {
+            retrainButton.disabled = false;
+            loader.classList.add('hidden');
+        }
     });
 });

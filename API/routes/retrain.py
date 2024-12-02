@@ -1,158 +1,283 @@
-from fastapi import FastAPI, UploadFile, File, HTTPException, APIRouter
-import os
-import zipfile
-import uuid
-import shutil
+from fastapi import FastAPI, UploadFile, File, HTTPException, APIRouter, BackgroundTasks
+from fastapi.responses import FileResponse
 import tensorflow as tf
 from tensorflow.keras.models import load_model
 from tensorflow.keras.preprocessing.image import ImageDataGenerator
-from fastapi.responses import FileResponse
+from tensorflow.keras import Model
+from tensorflow.keras.layers import Dense
+import os
+import shutil
+import zipfile
+import logging
+from typing import Dict, Tuple, Optional
+from pathlib import Path
+import json
+from datetime import datetime
 
-# FastAPI Router
+# Configure logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
+# Router initialization
 router = APIRouter()
 
-# Base directory for uploads and preprocessing
-BASE_DIR = './data'
-UPLOAD_DIR = os.path.join(BASE_DIR, 'uploads')
-PREPROCESSED_DIR = os.path.join(BASE_DIR, 'preprocessed_images')
+class ModelManager:
+    def __init__(self, base_path: Path):
+        self.base_path = Path(base_path)
+        self.models_dir = self.base_path / "models"
+        self.data_dir = self.base_path / "data"
+        self.uploads_dir = self.data_dir / "uploads"
+        self.preprocessed_dir = self.data_dir / "preprocessed"
+        self.training_history_dir = self.base_path / "training_history"
+        
+        # Create necessary directories
+        for directory in [self.models_dir, self.uploads_dir, 
+                         self.preprocessed_dir, self.training_history_dir]:
+            directory.mkdir(parents=True, exist_ok=True)
+    
+    def get_model_path(self, model_name: str) -> Path:
+        """Get the path for a model file."""
+        return self.models_dir / f"{model_name}.h5"
+    
+    def validate_model_exists(self, model_name: str) -> bool:
+        """Check if a model exists."""
+        model_path = self.get_model_path(model_name)
+        return model_path.exists()
 
-# Ensure directories exist
-os.makedirs(UPLOAD_DIR, exist_ok=True)
-os.makedirs(PREPROCESSED_DIR, exist_ok=True)
+class DataProcessor:
+    def __init__(self, manager: ModelManager):
+        self.manager = manager
+    
+    async def save_upload(self, file: UploadFile) -> Path:
+        """Save uploaded file and return its path."""
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        upload_path = self.manager.uploads_dir / f"upload_{timestamp}.zip"
+        
+        try:
+            content = await file.read()
+            upload_path.write_bytes(content)
+            return upload_path
+        except Exception as e:
+            logger.error(f"Error saving upload: {e}")
+            raise HTTPException(status_code=500, detail="Failed to save uploaded file")
+    
+    def validate_zip(self, zip_path: Path) -> Tuple[bool, str]:
+        """Validate ZIP file contents."""
+        try:
+            image_count = 0
+            class_dirs = set()
+            
+            with zipfile.ZipFile(zip_path, 'r') as zip_ref:
+                for file_path in zip_ref.namelist():
+                    if file_path.lower().endswith(('.jpg', '.jpeg', '.png')):
+                        image_count += 1
+                        class_dir = Path(file_path).parent
+                        if class_dir != Path(''):
+                            class_dirs.add(str(class_dir))
+            
+            if image_count == 0:
+                return False, "No valid images found in ZIP file"
+            if len(class_dirs) < 2:
+                return False, "ZIP must contain images in at least 2 class directories"
+                
+            return True, f"Found {image_count} images in {len(class_dirs)} classes"
+        except Exception as e:
+            return False, f"Invalid ZIP file: {str(e)}"
+    
+    def process_dataset(self, zip_path: Path) -> Path:
+        """Process uploaded dataset."""
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        dataset_dir = self.manager.preprocessed_dir / f"dataset_{timestamp}"
+        
+        try:
+            # Extract ZIP
+            with zipfile.ZipFile(zip_path, 'r') as zip_ref:
+                zip_ref.extractall(dataset_dir)
+            
+            # Validate extracted content
+            image_count = 0
+            for root, _, files in os.walk(dataset_dir):
+                for file in files:
+                    if file.lower().endswith(('.jpg', '.jpeg', '.png')):
+                        image_count += 1
+            
+            if image_count == 0:
+                raise ValueError("No valid images found after extraction")
+                
+            return dataset_dir
+        except Exception as e:
+            if dataset_dir.exists():
+                shutil.rmtree(dataset_dir)
+            raise HTTPException(status_code=500, detail=f"Dataset processing failed: {str(e)}")
 
-# Function to create unique directories for each upload
-def create_unique_directory(base_dir: str) -> str:
-    """Creates a unique directory for each upload."""
-    unique_id = str(uuid.uuid4())  # Generate a unique identifier
-    unique_dir = os.path.join(base_dir, unique_id)
-    os.makedirs(unique_dir, exist_ok=True)
-    return unique_dir
+class ModelTrainer:
+    def __init__(self, manager: ModelManager):
+        self.manager = manager
+    
+    def setup_data_generators(self, dataset_path: Path) -> Tuple[ImageDataGenerator, ImageDataGenerator]:
+        """Setup data generators for training and validation."""
+        train_datagen = ImageDataGenerator(
+            rescale=1./255,
+            rotation_range=20,
+            width_shift_range=0.2,
+            height_shift_range=0.2,
+            horizontal_flip=True,
+            validation_split=0.2
+        )
+        
+        val_datagen = ImageDataGenerator(
+            rescale=1./255,
+            validation_split=0.2
+        )
+        
+        return train_datagen, val_datagen
+    
+    def train_model(self, model_name: str, dataset_path: Path) -> Dict:
+        try:
+        # Load model
+            model_path = self.manager.get_model_path(model_name)
+            model = load_model(model_path)
+            
+            # Get number of classes from the dataset directory
+            num_classes = len([d for d in dataset_path.iterdir() if d.is_dir()])
+            
+            # Check output layer shape
+            if model.output_shape[-1] != num_classes:
+                logger.info(f"Adjusting model output from {model.output_shape[-1]} to {num_classes} classes")
+                # Keep all layers except the last one
+                x = model.layers[-2].output
+                new_output = Dense(num_classes, activation='softmax', name='new_output')(x)
+                model = Model(inputs=model.input, outputs=new_output)
+            
+            # Recompile the model
+            model.compile(
+                optimizer='adam',
+                loss='categorical_crossentropy',
+                metrics=['accuracy']
+            )
+            
+            # Setup data generators
+            train_datagen, val_datagen = self.setup_data_generators(dataset_path)
+            
+            # Create generators
+            train_generator = train_datagen.flow_from_directory(
+                dataset_path,
+                target_size=(256, 256),
+                batch_size=32,
+                class_mode='categorical',
+                subset='training'
+            )
+            
+            validation_generator = val_datagen.flow_from_directory(
+                dataset_path,
+                target_size=(256, 256),
+                batch_size=32,
+                class_mode='categorical',
+                subset='validation'
+            )
+            
+            logger.info(f"Retraining model with {num_classes} classes")
+            logger.info(f"Found {train_generator.samples} training samples")
+            logger.info(f"Found {validation_generator.samples} validation samples")
+            
+            # Train
+            history = model.fit(
+                train_generator,
+                validation_data=validation_generator,
+                epochs=1,
+                callbacks=[
+                    tf.keras.callbacks.EarlyStopping(
+                        monitor='val_loss',
+                        patience=2,
+                        restore_best_weights=True
+                    )
+                ]
+            )
+            
+            # Save retrained model
+            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+            new_model_path = self.manager.models_dir / f"{model_name}_retrained_{timestamp}.h5"
+            model.save(new_model_path)
+            
+            # Save training history
+            history_path = self.manager.training_history_dir / f"history_{timestamp}.json"
+            with open(history_path, 'w') as f:
+                json.dump(history.history, f)
+            
+            return {
+                "model_path": str(new_model_path),
+                "history_path": str(history_path),
+                "metrics": {
+                    "final_accuracy": float(history.history['accuracy'][-1]),
+                    "final_val_accuracy": float(history.history['val_accuracy'][-1]),
+                    "final_loss": float(history.history['loss'][-1]),
+                    "final_val_loss": float(history.history['val_loss'][-1])
+                }
+            }
+        except Exception as e:
+            logger.error(f"Training error: {str(e)}")
+            raise HTTPException(status_code=500, detail=f"Model training failed: {str(e)}")
 
-# Function to unzip the uploaded ZIP file
-def unzip_file(zip_file_path: str, extract_to: str):
-    """Unzips the uploaded file into the given directory."""
-    with zipfile.ZipFile(zip_file_path, 'r') as zip_ref:
-        zip_ref.extractall(extract_to)
-
-# Preprocess the dataset and organize it into class subdirectories
-def organize_dataset(unzipped_dir: str, output_dir: str):
-    """Organize images into class subdirectories for retraining."""
-    for root, dirs, files in os.walk(unzipped_dir):
-        for file_name in files:
-            if file_name.endswith(('.png', '.jpg', '.jpeg')):
-                class_name = os.path.basename(root)  # Folder name is the class name
-                class_dir = os.path.join(output_dir, class_name)
-                if not os.path.exists(class_dir):
-                    os.makedirs(class_dir)
-                # Move the file to the appropriate class folder
-                source_path = os.path.join(root, file_name)
-                dest_path = os.path.join(class_dir, file_name)
-                shutil.move(source_path, dest_path)
-
-# Function to retrain the model
-def retrain_model(model_path: str, dataset_dir: str):
-    """Retrains the existing model with new data."""
-    # Load the existing model
-    model = load_model(model_path)
-
-    # Recreate the optimizer
-    optimizer = tf.keras.optimizers.Adam()
-
-    # Recompile the model with the new optimizer
-    model.compile(optimizer=optimizer, loss='sparse_categorical_crossentropy', metrics=['accuracy'])
-
-    # Set up the data generator
-    datagen = ImageDataGenerator(rescale=1.0/255.0, validation_split=0.2)
-
-    # Train and validation generators
-    train_gen = datagen.flow_from_directory(
-        dataset_dir,
-        target_size=(256, 256),
-        batch_size=32,
-        class_mode='sparse',  # Use sparse labels to match original model
-        subset='training'
-    )
-    val_gen = datagen.flow_from_directory(
-        dataset_dir,
-        target_size=(256, 256),
-        batch_size=32,
-        class_mode='sparse',  # Use sparse labels to match original model
-        subset='validation'
-    )
-
-    # Retrain the model
-    model.fit(
-        train_gen,
-        epochs=1,  
-        validation_data=val_gen,
-        verbose=1
-    )
-
-    # Evaluate the model on the validation set
-    evaluation = model.evaluate(val_gen, verbose=1)
-
-    # Save the retrained model with a fixed name
-    retrained_model_path = os.path.join(BASE_DIR, "models", "model_densenet_retrained.h5")
-    model.save(retrained_model_path)
-
-    # Return evaluation metrics along with the model path
-    return retrained_model_path, evaluation
-
-# In routes/retrain.py
-@router.get("")
-async def test_retrain_endpoint():
-    return {"message": "Retrain endpoint is working"}
+# Initialize managers
+model_manager = ModelManager(Path("./"))
+data_processor = DataProcessor(model_manager)
+model_trainer = ModelTrainer(model_manager)
 
 @router.post("/upload")
-async def upload_and_retrain(file: UploadFile = File(...)):
-    """Uploads a ZIP file, preprocesses images, and retrains the model."""
-    if not file.filename.endswith('.zip'):
-        raise HTTPException(status_code=400, detail="Only ZIP files are supported.")
-    
-    # Step 1: Create a unique directory for this upload
-    unique_dir = create_unique_directory(UPLOAD_DIR)
-    
-    # Step 2: Save the uploaded file in the unique directory
-    zip_path = os.path.join(unique_dir, file.filename)
-    with open(zip_path, "wb") as f:
-        f.write(await file.read())
-    
-    # Step 3: Unzip the file
-    unzipped_dir = os.path.join(unique_dir, "unzipped")
-    os.makedirs(unzipped_dir, exist_ok=True)
-    unzip_file(zip_path, unzipped_dir)
-
-    # Step 4: Organize the dataset into class subdirectories
-    organize_dataset(unzipped_dir, PREPROCESSED_DIR)
-
-    # Step 5: Retrain the model
-    model_path = "../models/model_densenet.h5"  # Path to the existing model
+async def upload_and_retrain(
+    file: UploadFile = File(...),
+    background_tasks: BackgroundTasks = None
+):
+    """Handle dataset upload and model retraining."""
     try:
-        retrained_model_path, evaluation_metrics = retrain_model(model_path, PREPROCESSED_DIR)
+        # Validate file type
+        if not file.filename.endswith('.zip'):
+            raise HTTPException(status_code=400, detail="Only ZIP files are supported")
+        
+        # Save upload
+        zip_path = await data_processor.save_upload(file)
+        logger.info(f"File saved to {zip_path}")
+        
+        # Validate ZIP contents
+        is_valid, message = data_processor.validate_zip(zip_path)
+        if not is_valid:
+            raise HTTPException(status_code=400, detail=message)
+        
+        # Process dataset
+        dataset_path = data_processor.process_dataset(zip_path)
+        logger.info(f"Dataset processed at {dataset_path}")
+        
+        # Check if base model exists
+        if not model_manager.validate_model_exists("model_densenet"):
+            raise HTTPException(
+                status_code=404,
+                detail="Base model not found. Please ensure 'model_densenet.h5' exists in the models directory"
+            )
+        
+        # Train model
+        results = model_trainer.train_model("model_densenet", dataset_path)
+        
         return {
-            "message": "Model retrained successfully.",
-            "model_path": retrained_model_path,
-            "evaluation": {
-                "loss": evaluation_metrics[0],
-                "accuracy": evaluation_metrics[1]
-            }
+            "message": "Model retrained successfully",
+            "results": results
         }
+        
+    except HTTPException as e:
+        logger.error(f"HTTPException: {str(e)}")
+        raise e
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Error during model retraining: {e}")
+        logger.error(f"Error: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"An unexpected error occurred: {str(e)}")
 
-
-@router.get("/download-model")
-async def download_model():
-    """Endpoint to download the retrained model."""
-    retrained_model_path = "./models/model_densenet_retrained.h5"
-    if os.path.exists(retrained_model_path):
-        return FileResponse(
-            retrained_model_path,
-            media_type='application/octet-stream',
-            filename="model_densenet_retrained.h5"
-        )
-    else:
-        raise HTTPException(
-            status_code=404,
-            detail="Retrained model not found. Please retrain the model first."
-        )
+@router.get("/status/{training_id}")
+async def get_training_status(training_id: str):
+    """Get status of a training job."""
+    history_path = model_manager.training_history_dir / f"history_{training_id}.json"
+    
+    if not history_path.exists():
+        raise HTTPException(status_code=404, detail="Training history not found")
+        
+    with open(history_path) as f:
+        history = json.load(f)
+    
+    return {"status": "completed", "history": history}

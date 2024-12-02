@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>API Test</title>
+</head>
+<body>
+    <button id="testButton">Test API Connection</button>
+    <div id="result"></div>
+
+    <script>
+        document.getElementById('testButton').addEventListener('click', async () => {
+            const resultDiv = document.getElementById('result');
+            try {
+                const response = await fetch('http://127.0.0.1:8000/');
+                const data = await response.json();
+                resultDiv.textContent = 'Success: ' + JSON.stringify(data);
+            } catch (error) {
+                resultDiv.textContent = 'Error: ' + error.message;
+                console.error('Detailed error:', error);
+            }
+        });
+    </script>
+</body>
+</html>

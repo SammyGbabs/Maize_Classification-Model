@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Retrain - PlantAI</title>
+    <title>Retrain - MaizeGuard</title>
     <link rel="stylesheet" href="css/styles.css">
     <link rel="stylesheet" href="css/navigation.css">
     <link rel="stylesheet" href="css/retrain.css">
@@ -83,11 +83,19 @@
                 Start Retraining
             </button>
 
-            <div id="progressContainer" class="progress-container hidden">
-                <div class="progress-bar">
-                    <div id="progressBar" class="progress" style="width: 0%"></div>
-                </div>
-                <div id="progressStatus" class="progress-status">0%</div>
+            <div id="loader" class="loader hidden">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2" fill="none"></circle>
+                    <path d="M12 2a10 10 0 1 1 0 20 10 10 0 0 1 0-20z" fill="none" stroke="currentColor" stroke-width="2"></path>
+                </svg>
+                <span>Retraining in progress...</span>
+            </div>
+
+            <div id="metricsContainer" class="hidden">
+                <h3>Evaluation Metrics</h3>
+                <p>Loss: <span id="loss">N/A</span></p>
+                <p>Accuracy: <span id="accuracy">N/A</span></p>
+                <p>Saved Model Path: <span id="modelPath">N/A</span></p>
             </div>
         </div>
     </main>

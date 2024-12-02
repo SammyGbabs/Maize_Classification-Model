@@ -60,7 +60,7 @@ document.addEventListener('DOMContentLoaded', () => {
     
         try {
             console.log("Sending image for prediction...");
-            const response = await fetch('https://cors-anywhere.herokuapp.com/https://maize-classification-model.onrender.com/predict/', {
+            const response = await fetch('http://127.0.0.1:8000/predict', {
                 method: 'POST',
                 body: formData,
             });
