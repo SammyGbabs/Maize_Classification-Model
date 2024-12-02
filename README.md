@@ -37,14 +37,14 @@ Watch a detailed demonstration of the project in action:
 
 ---
 
-## **Live Links**
+# **Live Links**
 
-# **Live Application**
+## **Live Application**
 Access the live application here:  
 [Application URL](#)  
-*(Replace `#` with the deployed application URL)*
 
-##**Live Api Endpoint**
+## **Live Api Endpoint**
+
 Access the live API Endpoint here:  
 [Endpoint URL](https://maize-classification-model.onrender.com)  
 
@@ -146,14 +146,14 @@ Detailed results are available:
 ### **Prediction Example**
 | Metric       | Value         |  
 |--------------|---------------|  
-| Predicted Class | Maize Streak Virus |  
-| Confidence Score | 95% |  
+| Predicted Class | Blight |  
+| Confidence Score | 58.4% |  
 
 ### **Retraining Example**
 | Metric   | Value   |  
 |----------|---------|  
-| Loss     | 0.08    |  
-| Accuracy | 98%     |  
+| Loss     | 0.56    |  
+| Accuracy | 83%     |  
 
 ---
 
