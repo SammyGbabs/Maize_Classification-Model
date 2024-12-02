@@ -134,8 +134,6 @@ Detailed results are available:
 - **CSV File:** [Flood Simulation Results](/Locust_requests.csv)  
 - **Visualizations:**  
   ![Flood Simulation](/total_requests_per_second.png)
-  ![Flood Simulation](/number_of_users.png)
-  ![Flood Simulation](/response_times_(ms).png) 
 ---
 
 ## **Results and Evaluation**
