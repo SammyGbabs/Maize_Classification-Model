@@ -1,4 +1,5 @@
 from fastapi import FastAPI
+from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
 from routes.prediction import router as prediction_router
 from routes.retrain import router as retrain_router
@@ -21,9 +22,12 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# Mount the static folder to serve static files
+app.mount("/static", StaticFiles(directory="../static"), name="static")
+
 # Register routes
 app.include_router(prediction_router, prefix="/predict", tags=["Prediction"])
-app.include_router(retrain_router, prefix="", tags=["Retraining"])
+app.include_router(retrain_router, prefix="/retrain", tags=["Retraining"])
 
 # Root endpoint
 @app.get("/")

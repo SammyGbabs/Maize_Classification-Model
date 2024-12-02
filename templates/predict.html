@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Predict - MaizeGuard</title>
+    <link rel="stylesheet" href="../static/css/styles.css">
+    <link rel="stylesheet" href="../static/css/navigation.css">
+    <link rel="stylesheet" href="../static/css/predict.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="index.html" class="nav-logo">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="leaf-icon">
+                    <path d="M11 20A7 7 0 0 1 4 13c0-7 9-11 9-11s9 4 9 11a7 7 0 0 1-7 7h-4z"/>
+                </svg>
+                <span>PlantAI</span>
+            </a>
+            <div class="nav-links">
+                <a href="index.html">Home</a>
+                <a href="predict.html" class="active">Detect</a>
+                <a href="retrain.html">Retrain</a>
+                <a href="visualize.html">Visualize</a>
+            </div>
+        </div>
+    </nav>
+
+    <main class="container">
+        <div class="back-link">
+            <a href="index.html">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="19" y1="12" x2="5" y2="12"></line>
+                    <polyline points="12 19 5 12 12 5"></polyline>
+                </svg>
+                Back to Home
+            </a>
+        </div>
+
+        <div class="predict-container">
+            <h2>Predict Maize Leaf Diseases</h2>
+            
+            <div class="upload-area" id="uploadArea">
+                <input type="file" id="imageUpload" accept="image/*" class="hidden">
+                <label for="imageUpload" class="upload-label">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                        <polyline points="17 8 12 3 7 8"/>
+                        <line x1="12" y1="3" x2="12" y2="15"/>
+                    </svg>
+                    <span>Click to upload an image</span>
+                    <span class="upload-hint">or drag and drop</span>
+                </label>
+            </div>
+
+            <div id="imagePreview" class="image-preview hidden">
+                <img src="" alt="Preview" id="previewImage">
+            </div>
+
+            <button id="predictButton" class="predict-button" disabled>
+                Predict Disease
+            </button>
+
+            <div id="resultDisplay" class="result-display hidden">
+                <p id="predictionResult">Prediction: </p>
+                <p id="confidenceScore">Confidence: </p>
+            </div>
+        </div>
+    </main>
+
+    <script src="../static/js/navigation.js"></script>
+    <script src="../static/js/predict.js"></script>
+</body>
+</html>
