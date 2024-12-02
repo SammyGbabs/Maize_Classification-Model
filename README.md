@@ -37,11 +37,16 @@ Watch a detailed demonstration of the project in action:
 
 ---
 
-## **Live Application**
+## **Live Links**
 
+# **Live Application**
 Access the live application here:  
 [Application URL](#)  
 *(Replace `#` with the deployed application URL)*
+
+##**Live Api Endpoint**
+Access the live API Endpoint here:  
+[Endpoint URL](https://maize-classification-model.onrender.com)  
 
 ---
 
