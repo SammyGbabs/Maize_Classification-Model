@@ -136,9 +136,6 @@ Detailed results are available:
   ![Flood Simulation](/total_requests_per_second.png)
   ![Flood Simulation](/number_of_users.png)
   ![Flood Simulation](/response_times_(ms).png) 
-
-*(Replace placeholders with your actual results.)*
-
 ---
 
 ## **Results and Evaluation**
