@@ -131,9 +131,11 @@ The application’s performance was evaluated under heavy load using **Locust so
 - Peak concurrent users: *Y users*
 
 Detailed results are available:  
-- **CSV File:** [Flood Simulation Results](flood_simulation_results.csv)  
+- **CSV File:** [Flood Simulation Results](/Locust_requests.csv)  
 - **Visualizations:**  
-  ![Flood Simulation](flood_simulation_graph.png)  
+  ![Flood Simulation](/total_requests_per_second.png)
+  ![Flood Simulation](/number_of_users.png)
+  ![Flood Simulation](/response_times_(ms).png) 
 
 *(Replace placeholders with your actual results.)*
 
