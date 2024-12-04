@@ -43,7 +43,7 @@ body {
   left: 0;
   right: 0;
   bottom: 0;
-  background: url('/Frontend/images/bg.jpg') center/cover;
+  background: url('/templates/images/bg.jpg') center/cover;
   opacity: 0.2;
   z-index: 0;
 }

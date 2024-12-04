@@ -32,9 +32,7 @@ The application is built using **HTML**, **CSS**, and **JavaScript** for the fro
 ## **Demo Video**
 
 Watch a detailed demonstration of the project in action:  
-[YouTube Demo](#)  
-*(Replace `#` with your YouTube video URL)*
-
+[YouTube Demo](https://youtu.be/EZy92JYyAjk)  
 ---
 
 # **Live Links**

@@ -28,11 +28,9 @@ class ModelManager:
         self.data_dir = self.base_path / "data"
         self.uploads_dir = self.data_dir / "uploads"
         self.preprocessed_dir = self.data_dir / "preprocessed"
-        self.training_history_dir = self.base_path / "training_history"
         
         # Create necessary directories
-        for directory in [self.models_dir, self.uploads_dir, 
-                         self.preprocessed_dir, self.training_history_dir]:
+        for directory in [self.models_dir, self.uploads_dir, self.preprocessed_dir]:
             directory.mkdir(parents=True, exist_ok=True)
     
     def get_model_path(self, model_name: str) -> Path:
@@ -134,7 +132,7 @@ class ModelTrainer:
     
     def train_model(self, model_name: str, dataset_path: Path) -> Dict:
         try:
-        # Load model
+            # Load model
             model_path = self.manager.get_model_path(model_name)
             model = load_model(model_path)
             
@@ -185,7 +183,7 @@ class ModelTrainer:
                 train_generator,
                 validation_data=validation_generator,
                 epochs=1,
-                callbacks=[
+                callbacks=[ 
                     tf.keras.callbacks.EarlyStopping(
                         monitor='val_loss',
                         patience=2,
@@ -194,19 +192,20 @@ class ModelTrainer:
                 ]
             )
             
+            # Log training metrics
+            logger.info(f"Training completed. Final accuracy: {history.history['accuracy'][-1]:.4f}")
+            logger.info(f"Final validation accuracy: {history.history['val_accuracy'][-1]:.4f}")
+            logger.info(f"Final loss: {history.history['loss'][-1]:.4f}")
+            logger.info(f"Final validation loss: {history.history['val_loss'][-1]:.4f}")
+            
             # Save retrained model
             timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
             new_model_path = self.manager.models_dir / f"{model_name}_retrained_{timestamp}.h5"
             model.save(new_model_path)
             
-            # Save training history
-            history_path = self.manager.training_history_dir / f"history_{timestamp}.json"
-            with open(history_path, 'w') as f:
-                json.dump(history.history, f)
-            
             return {
+                "message": "Model retrained successfully",
                 "model_path": str(new_model_path),
-                "history_path": str(history_path),
                 "metrics": {
                     "final_accuracy": float(history.history['accuracy'][-1]),
                     "final_val_accuracy": float(history.history['val_accuracy'][-1]),
@@ -257,6 +256,14 @@ async def upload_and_retrain(
         # Train model
         results = model_trainer.train_model("model_densenet", dataset_path)
         
+        # Print the metrics of the retrained model
+        metrics = results['metrics']
+        logger.info(f"Retrained model metrics:")
+        logger.info(f"Final accuracy: {metrics['final_accuracy']}")
+        logger.info(f"Final validation accuracy: {metrics['final_val_accuracy']}")
+        logger.info(f"Final loss: {metrics['final_loss']}")
+        logger.info(f"Final validation loss: {metrics['final_val_loss']}")
+        
         return {
             "message": "Model retrained successfully",
             "results": results
@@ -268,16 +275,3 @@ async def upload_and_retrain(
     except Exception as e:
         logger.error(f"Error: {str(e)}")
         raise HTTPException(status_code=500, detail=f"An unexpected error occurred: {str(e)}")
-
-@router.get("/status/{training_id}")
-async def get_training_status(training_id: str):
-    """Get status of a training job."""
-    history_path = model_manager.training_history_dir / f"history_{training_id}.json"
-    
-    if not history_path.exists():
-        raise HTTPException(status_code=404, detail="Training history not found")
-        
-    with open(history_path) as f:
-        history = json.load(f)
-    
-    return {"status": "completed", "history": history}
